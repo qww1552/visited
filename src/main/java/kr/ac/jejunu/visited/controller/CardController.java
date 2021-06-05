@@ -38,4 +38,25 @@ public class CardController {
         Card save = cardRepository.save(card);
         return save;
     }
+
+    @PutMapping("/{cardId}")
+    public Card modifyCard(@PathVariable Integer cardId, @RequestBody Map<String,String> update) {
+        // 널일 경우 처리 필요
+        Card card = Card.builder()
+                .id(cardId)
+                .author(update.get("author"))
+                .password(update.get("password"))
+                .message(update.get("message"))
+                .latitude(Double.valueOf(update.get("latitude")))
+                .longitude(Double.valueOf(update.get("longitude")))
+                .build();
+
+        return cardRepository.save(card);
+    }
+
+    @DeleteMapping("/{cardId}")
+    public void deleteCard(@PathVariable Integer cardId) {
+        cardRepository.deleteById(cardId);
+    }
+
 }
