@@ -1,5 +1,7 @@
 package kr.ac.jejunu.visited;
 
+import kr.ac.jejunu.visited.entity.Card;
+import kr.ac.jejunu.visited.repository.CardRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,11 +18,11 @@ class VisitedApplicationTests {
     Double longitude = 1.0;
 
     @Autowired
-    CardDao cardDao;
+    CardRepository cardRepository;
 
     @Test
     public void get() {
-        Card card = cardDao.findById(1).get();
+        Card card = cardRepository.findById(1).get();
         System.out.println(card);
         assertThat(card.getAuthor(), is(author));
         assertThat(card.getPassword(),is(password));
@@ -39,9 +41,9 @@ class VisitedApplicationTests {
                 .longitude(longitude)
                 .build();
 
-        cardDao.save(card);
+        cardRepository.save(card);
 
-        Card insertedCard = cardDao.findById(card.getId()).get();
+        Card insertedCard = cardRepository.findById(card.getId()).get();
 
         assertThat(insertedCard.getAuthor(), is(author));
         assertThat(insertedCard.getPassword(),is(password));
