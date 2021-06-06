@@ -12,6 +12,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("cards")
+@CrossOrigin(value = "http://localhost:5000/", methods = {RequestMethod.GET,RequestMethod.POST,RequestMethod.PUT,RequestMethod.DELETE})
 public class CardController {
     @Autowired
     private final CardRepository cardRepository;
@@ -42,6 +43,7 @@ public class CardController {
     @PutMapping("/{cardId}")
     public Card modifyCard(@PathVariable Integer cardId, @RequestBody Map<String,String> update) {
         // 널일 경우 처리 필요
+
         Card card = Card.builder()
                 .id(cardId)
                 .author(update.get("author"))
