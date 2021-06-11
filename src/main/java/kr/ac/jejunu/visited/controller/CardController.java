@@ -1,13 +1,16 @@
 package kr.ac.jejunu.visited.controller;
 
+import kr.ac.jejunu.visited.api.CardDto;
 import kr.ac.jejunu.visited.repository.CardRepository;
 import kr.ac.jejunu.visited.entity.Card;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,42 +26,43 @@ public class CardController {
     }
 
     @GetMapping("/{cardId}")
-    public Card getOneCard(@PathVariable Integer cardId) {
-        return cardRepository.findById(cardId).get();
+    public ResponseEntity getOneCard(@PathVariable Integer cardId) {
+        CardDto card = new CardDto(
+                cardRepository.findById(cardId).orElseThrow(() ->
+                new NoSuchElementException("no card"))
+        );
+        return new ResponseEntity(card, HttpStatus.OK);
     }
 
     @PostMapping
-    public Card addCard(@RequestBody Map<String,String> newCard) {
-        Card card = Card.builder()
-                .author(newCard.get("author"))
-                .password(newCard.get("password"))
-                .message(newCard.get("message"))
-                .latitude(Double.valueOf(newCard.get("latitude")))
-                .longitude(Double.valueOf(newCard.get("longitude")))
-                .build();
-        Card save = cardRepository.save(card);
-        return save;
+    public ResponseEntity addCard(@RequestBody Card newCard) {
+        CardDto save = new CardDto(cardRepository.save(newCard));
+        return new ResponseEntity(save,HttpStatus.CREATED);
     }
 
     @PutMapping("/{cardId}")
-    public Card modifyCard(@PathVariable Integer cardId, @RequestBody Map<String,String> update) {
+    public ResponseEntity updateCard(@PathVariable Integer cardId, @RequestBody Card update) {
         // 널일 경우 처리 필요
 
         Card card = Card.builder()
                 .id(cardId)
-                .author(update.get("author"))
-                .password(update.get("password"))
-                .message(update.get("message"))
-                .latitude(Double.valueOf(update.get("latitude")))
-                .longitude(Double.valueOf(update.get("longitude")))
+                .author(update.getAuthor())
+                .password(update.getPassword())
+                .message(update.getMessage())
+                .latitude(update.getLatitude())
+                .longitude(update.getLongitude())
                 .build();
 
-        return cardRepository.save(card);
+        CardDto updated = new CardDto(cardRepository.save(card));
+        return new ResponseEntity(updated,HttpStatus.OK);
     }
 
     @DeleteMapping("/{cardId}")
-    public void deleteCard(@PathVariable Integer cardId) {
+    public ResponseEntity deleteCard(@PathVariable Integer cardId) {
         cardRepository.deleteById(cardId);
+        return new ResponseEntity(HttpStatus.OK);
     }
+
+
 
 }
