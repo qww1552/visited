@@ -17,11 +17,11 @@ public class CardService {
     private final EntityManager entityManager;
 
     public List<Card> findByDistance(Double[] position) {
-        double distance = 0.005;
+        double distance = 0.01;
         double latitude = position[0];
         double longitude = position[1];
         String qlString = "select c FROM card as c " +
-                "where c.latitude >= :latitude + :distance or c.latitude <= :latitude - :distance and c.longitude >= :longitude + :distance or c.longitude <= :longitude - :distance";
+                "where c.latitude >= :latitude - :distance and c.latitude <= :latitude + :distance and c.longitude >= :longitude - :distance and c.longitude <= :longitude + :distance";
         TypedQuery<Card> query = entityManager.createQuery(qlString,Card.class);
         query.setParameter("latitude", latitude);
         query.setParameter("longitude", longitude);
