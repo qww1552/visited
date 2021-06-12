@@ -5,10 +5,13 @@ import kr.ac.jejunu.visited.repository.CardRepository;
 import kr.ac.jejunu.visited.entity.Card;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -22,7 +25,8 @@ public class CardController {
     private final CardRepository cardRepository;
 
     @GetMapping
-    public ResponseEntity getAllCards() {
+    public ResponseEntity getAllCards(@RequestHeader HttpHeaders headers) {
+        System.out.println(headers);
         List<CardDto> cards = new LinkedList<>();
         for (Card card : cardRepository.findAll()) {
             cards.add(new CardDto(card));
@@ -41,6 +45,7 @@ public class CardController {
 
     @PostMapping
     public ResponseEntity addCard(@RequestBody Card newCard) {
+        System.out.println(newCard);
         CardDto save = new CardDto(cardRepository.save(newCard));
         return new ResponseEntity(save, HttpStatus.CREATED);
     }

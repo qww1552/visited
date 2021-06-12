@@ -2,9 +2,12 @@ package kr.ac.jejunu.visited;
 
 import kr.ac.jejunu.visited.entity.Card;
 import kr.ac.jejunu.visited.repository.CardRepository;
+import kr.ac.jejunu.visited.service.CardService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -19,6 +22,9 @@ class VisitedApplicationTests {
 
     @Autowired
     CardRepository cardRepository;
+
+    @Autowired
+    CardService cardService;
 
     @Test
     public void get() {
@@ -49,4 +55,14 @@ class VisitedApplicationTests {
         assertThat(insertedCard.getPassword(),is(password));
         assertThat(insertedCard.getMessage(),is(message));
     }
+
+    @Test
+    public void findByDistance() {
+        Double[] position = {33.4551, 126.5669};
+        List<Card> byDistance = cardService.findByDistance(position);
+        List<Card> all = cardRepository.findAll();
+        System.out.println(byDistance);
+        assertThat(all,is(byDistance));
+    }
+
 }
