@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
+import java.util.InputMismatchException;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -30,4 +31,9 @@ public class CardService {
     }
 
 
+    public void checkPassword(String password, String incomingPassword) {
+        if (!incomingPassword.equals(password)) {
+            throw new InputMismatchException("비밀번호가 틀렸습니다.");
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package kr.ac.jejunu.visited.controller;
 
+import kr.ac.jejunu.visited.api.ApiErrorResponse;
 import kr.ac.jejunu.visited.api.CardDto;
 import kr.ac.jejunu.visited.repository.CardRepository;
 import kr.ac.jejunu.visited.entity.Card;
@@ -26,7 +27,7 @@ public class CardController {
     private final CardService cardService;
 
     @GetMapping
-    public ResponseEntity getAllCards(@Param("latitude")Double latitude, @Param("longitude") Double longitude) {
+    public ResponseEntity getAllCards(@Param("latitude") Double latitude, @Param("longitude") Double longitude) {
         Double[] position = {latitude, longitude};
         List<CardDto> cards = new LinkedList<>();
         List<Card> byDistance = cardService.findByDistance(position);
@@ -56,16 +57,10 @@ public class CardController {
         Card cardById = cardRepository.findById(cardId).orElseThrow(() ->
                 new NoSuchElementException("card not found")
         );
-        checkPassword(cardById.getPassword(),update.getPassword());
+        cardService.checkPassword(cardById.getPassword(), update.getPassword());
         update.setId(cardId);
         CardDto updated = new CardDto(cardRepository.save(update));
         return new ResponseEntity(updated, HttpStatus.OK);
-    }
-
-    private void checkPassword(String password, String incomingPassword) {
-        if (!incomingPassword.equals(password)) {
-            throw new InputMismatchException("비밀번호가 틀렸습니다.");
-        }
     }
 
     @DeleteMapping("/{cardId}")
@@ -73,18 +68,10 @@ public class CardController {
         Card cardById = cardRepository.findById(cardId).orElseThrow(() ->
                 new NoSuchElementException("card not found")
         );
-        checkPassword(cardById.getPassword(),password);
+        cardService.checkPassword(cardById.getPassword(), password);
         cardRepository.deleteById(cardId);
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity handleNoSuchElementException(Exception e) {
-        return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
-    }
-    
-    @ExceptionHandler(InputMismatchException.class)
-    public ResponseEntity handleInputMismatchException(Exception e) {
-        return new ResponseEntity(e.getMessage(), HttpStatus.FORBIDDEN);
-    }
+
 }
