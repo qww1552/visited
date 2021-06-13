@@ -28,4 +28,6 @@ public class CardService {
         query.setParameter("distance", distance);
         return query.getResultList();
     }
+
+
 }

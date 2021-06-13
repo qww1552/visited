@@ -3,18 +3,16 @@ package kr.ac.jejunu.visited.controller;
 import kr.ac.jejunu.visited.api.CardDto;
 import kr.ac.jejunu.visited.repository.CardRepository;
 import kr.ac.jejunu.visited.entity.Card;
+import kr.ac.jejunu.visited.service.CardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
+import org.springframework.data.repository.query.Param;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.Enumeration;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,11 +22,15 @@ public class CardController {
     @Autowired
     private final CardRepository cardRepository;
 
+    @Autowired
+    private final CardService cardService;
+
     @GetMapping
-    public ResponseEntity getAllCards(@RequestHeader HttpHeaders headers) {
-        System.out.println(headers);
+    public ResponseEntity getAllCards(@Param("latitude")Double latitude, @Param("longitude") Double longitude) {
+        Double[] position = {latitude, longitude};
         List<CardDto> cards = new LinkedList<>();
-        for (Card card : cardRepository.findAll()) {
+        List<Card> byDistance = cardService.findByDistance(position);
+        for (Card card : byDistance) {
             cards.add(new CardDto(card));
         }
         return new ResponseEntity(cards, HttpStatus.OK);
@@ -45,35 +47,33 @@ public class CardController {
 
     @PostMapping
     public ResponseEntity addCard(@RequestBody Card newCard) {
-        System.out.println(newCard);
         CardDto save = new CardDto(cardRepository.save(newCard));
         return new ResponseEntity(save, HttpStatus.CREATED);
     }
 
     @PutMapping("/{cardId}")
     public ResponseEntity updateCard(@PathVariable Integer cardId, @RequestBody Card update) {
-        // 널일 경우 처리 필요
-        cardRepository.findById(cardId).orElseThrow(() ->
+        Card cardById = cardRepository.findById(cardId).orElseThrow(() ->
                 new NoSuchElementException("card not found")
         );
-        Card card = Card.builder()
-                .id(cardId)
-                .author(update.getAuthor())
-                .password(update.getPassword())
-                .message(update.getMessage())
-                .latitude(update.getLatitude())
-                .longitude(update.getLongitude())
-                .build();
-
-        CardDto updated = new CardDto(cardRepository.save(card));
+        checkPassword(cardById.getPassword(),update.getPassword());
+        update.setId(cardId);
+        CardDto updated = new CardDto(cardRepository.save(update));
         return new ResponseEntity(updated, HttpStatus.OK);
     }
 
+    private void checkPassword(String password, String incomingPassword) {
+        if (!incomingPassword.equals(password)) {
+            throw new InputMismatchException("비밀번호가 틀렸습니다.");
+        }
+    }
+
     @DeleteMapping("/{cardId}")
-    public ResponseEntity deleteCard(@PathVariable Integer cardId) {
-        cardRepository.findById(cardId).orElseThrow(() ->
+    public ResponseEntity deleteCard(@PathVariable Integer cardId, @RequestBody String password) {
+        Card cardById = cardRepository.findById(cardId).orElseThrow(() ->
                 new NoSuchElementException("card not found")
         );
+        checkPassword(cardById.getPassword(),password);
         cardRepository.deleteById(cardId);
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -82,5 +82,9 @@ public class CardController {
     public ResponseEntity handleNoSuchElementException(Exception e) {
         return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
     }
-
+    
+    @ExceptionHandler(InputMismatchException.class)
+    public ResponseEntity handleInputMismatchException(Exception e) {
+        return new ResponseEntity(e.getMessage(), HttpStatus.FORBIDDEN);
+    }
 }
