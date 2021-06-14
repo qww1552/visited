@@ -1,4 +1,4 @@
-package kr.ac.jejunu.visited.api;
+package kr.ac.jejunu.visited.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

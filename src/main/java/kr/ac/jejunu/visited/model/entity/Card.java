@@ -1,4 +1,4 @@
-package kr.ac.jejunu.visited.entity;
+package kr.ac.jejunu.visited.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

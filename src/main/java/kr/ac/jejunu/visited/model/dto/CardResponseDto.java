@@ -1,6 +1,6 @@
-package kr.ac.jejunu.visited.api;
+package kr.ac.jejunu.visited.model.dto;
 
-import kr.ac.jejunu.visited.entity.Card;
+import kr.ac.jejunu.visited.model.entity.Card;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,14 +10,14 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CardDto {
+public class CardResponseDto {
     private Integer id;
     private String author;
     private String message;
     private Double latitude;
     private Double longitude;
 
-    public CardDto(Card card) {
+    public CardResponseDto(Card card) {
         this.id = card.getId();
         this.author = card.getAuthor();
         this.message = card.getMessage();

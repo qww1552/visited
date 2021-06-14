@@ -1,6 +1,6 @@
 package kr.ac.jejunu.visited.service;
 
-import kr.ac.jejunu.visited.entity.Card;
+import kr.ac.jejunu.visited.model.entity.Card;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

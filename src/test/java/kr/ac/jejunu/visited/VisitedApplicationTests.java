@@ -1,6 +1,6 @@
 package kr.ac.jejunu.visited;
 
-import kr.ac.jejunu.visited.entity.Card;
+import kr.ac.jejunu.visited.model.entity.Card;
 import kr.ac.jejunu.visited.repository.CardRepository;
 import kr.ac.jejunu.visited.service.CardService;
 import org.junit.jupiter.api.Test;

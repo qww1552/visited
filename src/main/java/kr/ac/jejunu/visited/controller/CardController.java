@@ -1,9 +1,9 @@
 package kr.ac.jejunu.visited.controller;
 
-import kr.ac.jejunu.visited.api.ApiErrorResponse;
-import kr.ac.jejunu.visited.api.CardDto;
+import kr.ac.jejunu.visited.model.dto.CardResponseDto;
+import kr.ac.jejunu.visited.model.dto.CardRequestDto;
 import kr.ac.jejunu.visited.repository.CardRepository;
-import kr.ac.jejunu.visited.entity.Card;
+import kr.ac.jejunu.visited.model.entity.Card;
 import kr.ac.jejunu.visited.service.CardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.*;
 import java.util.*;
 
 @RestController
@@ -29,37 +30,44 @@ public class CardController {
     @GetMapping
     public ResponseEntity getAllCards(@Param("latitude") Double latitude, @Param("longitude") Double longitude) {
         Double[] position = {latitude, longitude};
-        List<CardDto> cards = new LinkedList<>();
+        List<CardResponseDto> cards = new LinkedList<>();
+
         List<Card> byDistance = cardService.findByDistance(position);
         for (Card card : byDistance) {
-            cards.add(new CardDto(card));
+            cards.add(new CardResponseDto(card));
         }
+
         return new ResponseEntity(cards, HttpStatus.OK);
     }
 
     @GetMapping("/{cardId}")
     public ResponseEntity getOneCard(@PathVariable Integer cardId) {
-        CardDto card = new CardDto(
+        CardResponseDto card = new CardResponseDto(
                 cardRepository.findById(cardId).orElseThrow(() ->
                         new NoSuchElementException("card not found"))
         );
+
         return new ResponseEntity(card, HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity addCard(@RequestBody Card newCard) {
-        CardDto save = new CardDto(cardRepository.save(newCard));
+    public ResponseEntity addCard(@RequestBody @Valid CardRequestDto newCard) {
+
+        CardResponseDto save = new CardResponseDto(cardRepository.save(newCard.convertToEntity()));
+
         return new ResponseEntity(save, HttpStatus.CREATED);
     }
 
     @PutMapping("/{cardId}")
-    public ResponseEntity updateCard(@PathVariable Integer cardId, @RequestBody Card update) {
+    public ResponseEntity updateCard(@PathVariable Integer cardId, @RequestBody @Valid CardRequestDto update) {
         Card cardById = cardRepository.findById(cardId).orElseThrow(() ->
                 new NoSuchElementException("card not found")
         );
         cardService.checkPassword(cardById.getPassword(), update.getPassword());
+
         update.setId(cardId);
-        CardDto updated = new CardDto(cardRepository.save(update));
+        CardResponseDto updated = new CardResponseDto(cardRepository.save(update.convertToEntity()));
+
         return new ResponseEntity(updated, HttpStatus.OK);
     }
 
@@ -69,8 +77,10 @@ public class CardController {
                 new NoSuchElementException("card not found")
         );
         cardService.checkPassword(cardById.getPassword(), password);
+
         cardRepository.deleteById(cardId);
-        return new ResponseEntity(HttpStatus.OK);
+
+        return new ResponseEntity(cardById,HttpStatus.OK);
     }
 
 
