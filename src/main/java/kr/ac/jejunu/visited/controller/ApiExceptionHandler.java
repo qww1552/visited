@@ -1,6 +1,6 @@
 package kr.ac.jejunu.visited.controller;
 
-import kr.ac.jejunu.visited.api.ApiErrorResponse;
+import kr.ac.jejunu.visited.model.dto.ApiErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -21,6 +21,11 @@ public class ApiExceptionHandler {
     @ExceptionHandler(InputMismatchException.class)
     public ResponseEntity handleInputMismatchException(Exception e) {
         return getErrorResponse(e, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity handleTest(Exception e) {
+        return getErrorResponse(e, HttpStatus.BAD_REQUEST);
     }
 
     private ResponseEntity getErrorResponse(Exception e, HttpStatus httpStatus) {
