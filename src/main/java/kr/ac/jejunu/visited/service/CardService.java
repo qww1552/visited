@@ -1,6 +1,8 @@
 package kr.ac.jejunu.visited.service;
 
 import kr.ac.jejunu.visited.model.entity.Card;
+import kr.ac.jejunu.visited.repository.CardRepository;
+import kr.ac.jejunu.visited.util.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,10 @@ public class CardService {
 
     @Autowired
     private final EntityManager entityManager;
+    @Autowired
+    private final CardRepository cardRepository;
+    @Autowired
+    private final PasswordEncoder passwordEncoder;
 
     public List<Card> findByDistance(Double[] position) {
         double distance = 0.01;
@@ -30,9 +36,13 @@ public class CardService {
         return query.getResultList();
     }
 
+    public Card save(Card card) {
+        card.setPassword(passwordEncoder.encode(card.getPassword()));
+        return cardRepository.save(card);
+    }
 
-    public void checkPassword(String password, String incomingPassword) {
-        if (!incomingPassword.equals(password)) {
+    public void checkPassword(String password, String encodedPassword) {
+        if (!passwordEncoder.checkPassword(password,encodedPassword)) {
             throw new InputMismatchException("비밀번호가 틀렸습니다.");
         }
     }

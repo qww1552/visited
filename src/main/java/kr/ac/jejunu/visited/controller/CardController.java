@@ -5,6 +5,7 @@ import kr.ac.jejunu.visited.model.dto.CardRequestDto;
 import kr.ac.jejunu.visited.repository.CardRepository;
 import kr.ac.jejunu.visited.model.entity.Card;
 import kr.ac.jejunu.visited.service.CardService;
+import kr.ac.jejunu.visited.util.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
@@ -23,7 +24,6 @@ import java.util.*;
 public class CardController {
     @Autowired
     private final CardRepository cardRepository;
-
     @Autowired
     private final CardService cardService;
 
@@ -52,9 +52,7 @@ public class CardController {
 
     @PostMapping
     public ResponseEntity addCard(@RequestBody @Valid CardRequestDto newCard) {
-
-        CardResponseDto save = new CardResponseDto(cardRepository.save(newCard.convertToEntity()));
-
+        CardResponseDto save = new CardResponseDto(cardService.save(newCard.convertToEntity()));
         return new ResponseEntity(save, HttpStatus.CREATED);
     }
 
@@ -63,10 +61,10 @@ public class CardController {
         Card cardById = cardRepository.findById(cardId).orElseThrow(() ->
                 new NoSuchElementException("card not found")
         );
-        cardService.checkPassword(cardById.getPassword(), update.getPassword());
+        cardService.checkPassword(update.getPassword(), cardById.getPassword());
 
         update.setId(cardId);
-        CardResponseDto updated = new CardResponseDto(cardRepository.save(update.convertToEntity()));
+        CardResponseDto updated = new CardResponseDto(cardService.save(update.convertToEntity()));
 
         return new ResponseEntity(updated, HttpStatus.OK);
     }
@@ -76,7 +74,7 @@ public class CardController {
         Card cardById = cardRepository.findById(cardId).orElseThrow(() ->
                 new NoSuchElementException("card not found")
         );
-        cardService.checkPassword(cardById.getPassword(), password);
+        cardService.checkPassword(password,cardById.getPassword());
 
         cardRepository.deleteById(cardId);
 

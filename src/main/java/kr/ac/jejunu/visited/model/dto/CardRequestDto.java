@@ -39,6 +39,7 @@ public class CardRequestDto {
         return Card.builder()
                 .id(this.id)
                 .author(this.author)
+                .password(this.password)
                 .message(this.message)
                 .latitude(this.latitude)
                 .longitude(this.longitude)
