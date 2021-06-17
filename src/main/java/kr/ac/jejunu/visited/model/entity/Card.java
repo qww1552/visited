@@ -5,10 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Data
 @Builder
@@ -21,6 +18,7 @@ public class Card {
     private Integer id;
     private String author;
     private String password;
+    @Column(columnDefinition = "TEXT")
     private String message;
     private Double latitude;
     private Double longitude;

@@ -5,7 +5,7 @@ import kr.ac.jejunu.visited.model.dto.CardRequestDto;
 import kr.ac.jejunu.visited.repository.CardRepository;
 import kr.ac.jejunu.visited.model.entity.Card;
 import kr.ac.jejunu.visited.service.CardService;
-import kr.ac.jejunu.visited.util.PasswordEncoder;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
@@ -20,7 +20,7 @@ import java.util.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("cards")
-@CrossOrigin(value = "http://localhost:5000/", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
+@CrossOrigin(value = {"http://localhost:5000/","https://qww1552.github.io/"}, methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
 public class CardController {
     @Autowired
     private final CardRepository cardRepository;
@@ -42,12 +42,15 @@ public class CardController {
 
     @GetMapping("/{cardId}")
     public ResponseEntity getOneCard(@PathVariable Integer cardId) {
-        CardResponseDto card = new CardResponseDto(
-                cardRepository.findById(cardId).orElseThrow(() ->
-                        new NoSuchElementException("card not found"))
-        );
+        Card cardById = getCardOrException(cardId);
+        CardResponseDto card = new CardResponseDto(cardById);
 
         return new ResponseEntity(card, HttpStatus.OK);
+    }
+
+    private Card getCardOrException(Integer cardId) {
+        return cardRepository.findById(cardId).orElseThrow(() ->
+                new NoSuchElementException("카드가 존재하지 않습니다."));
     }
 
     @PostMapping
@@ -58,9 +61,7 @@ public class CardController {
 
     @PutMapping("/{cardId}")
     public ResponseEntity updateCard(@PathVariable Integer cardId, @RequestBody @Valid CardRequestDto update) {
-        Card cardById = cardRepository.findById(cardId).orElseThrow(() ->
-                new NoSuchElementException("card not found")
-        );
+        Card cardById = getCardOrException(cardId);
         cardService.checkPassword(update.getPassword(), cardById.getPassword());
 
         update.setId(cardId);
@@ -71,14 +72,13 @@ public class CardController {
 
     @DeleteMapping("/{cardId}")
     public ResponseEntity deleteCard(@PathVariable Integer cardId, @RequestBody String password) {
-        Card cardById = cardRepository.findById(cardId).orElseThrow(() ->
-                new NoSuchElementException("card not found")
-        );
-        cardService.checkPassword(password,cardById.getPassword());
+        Card cardById = getCardOrException(cardId);
+        cardService.checkPassword(password, cardById.getPassword());
 
+        CardResponseDto cardDto = new CardResponseDto(cardById);
         cardRepository.deleteById(cardId);
 
-        return new ResponseEntity(cardById,HttpStatus.OK);
+        return new ResponseEntity(cardDto, HttpStatus.OK);
     }
 
 
